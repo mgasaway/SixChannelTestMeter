@@ -1,3 +1,6 @@
+import processing.serial.*;
+import cc.arduino.*;
+
 float dataMin, dataMax;
 
 float plotX1, plotY1;
@@ -20,14 +23,20 @@ float[] tabLeft, tabRight;  // Add above setup()
 float tabTop, tabBottom;
 float tabPad = 10;
 
-int volumeIntervalMinor = 5;   // Add this above setup()
+int volumeIntervalMinor = 5;
 
 String columnName[];
 
 int[][][] channel;
 
+//arduino declaration
+Arduino arduino;
+
 void setup() {
   size(1200, 400);
+  
+  //instantiate new arduino object
+  arduino = new Arduino(this, Arduino.list()[0], 57600);
   
   timeMin = 0;
   timeMax = 10000;
