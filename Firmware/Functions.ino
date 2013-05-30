@@ -1,6 +1,19 @@
 #include "Functions.h"
 #include "Firmware.h"
 
+long readVcc() {
+  long result;
+  // Read 1.1V reference against AVcc
+  ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
+  delay(2); // Wait for Vref to settle
+  ADCSRA |= _BV(ADSC); // Convert
+  while (bit_is_set(ADCSRA,ADSC));
+  result = ADCL;
+  result |= ADCH<<8;
+  result = 1125300L / result; // Back-calculate AVcc in mV
+  return result;
+}
+
 void measureAllChannels(){
   int i;
   
@@ -14,8 +27,19 @@ void measureAllChannels(){
       continue;
     }
     selectChannel(i);
-    Channel[i].rawMeasurement[Channel[i].index++] = analogRead(ADC_IN);
+    Channel[i].rawMeasurement[Channel[i].index++] = readADC();
   }
+}
+
+double readADC(){
+    unsigned int ADCValue;
+    double voltage, vcc;
+
+    vcc = readVcc()/1000.0;
+    ADCValue = analogRead(ADC_IN);
+    voltage = (ADCValue / 1023.0) * vcc; 
+    
+    return voltage;
 }
 
 /*
