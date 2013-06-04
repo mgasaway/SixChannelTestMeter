@@ -1,6 +1,6 @@
 import processing.serial.*;
-import cc.arduino.*;
 
+//GUI stuff
 float dataMin, dataMax;
 
 float plotX1, plotY1;
@@ -27,28 +27,43 @@ int volumeIntervalMinor = 5;
 
 String columnName[];
 
+//store measurment data
 int[][][] channel;
 
-//arduino declaration
-Arduino arduino;
+color off = color(255, 0, 0);
+color on = color(0, 255, 0);
+
+boolean measure=true, squareWave=false, sinWave=false;
+
+//serial connection
+Serial arduino;
+String data;
 
 void setup() {
   size(1200, 400);
   
-  //instantiate new arduino object
-  arduino = new Arduino(this, Arduino.list()[0], 57600);
+  //instantiate new serial object if arduino is connected
+  try{
+    String port = Serial.list()[0];
+    arduino = new Serial(this, port, 19200);
+  }catch( ArrayIndexOutOfBoundsException e){
+    arduino=null; 
+  }
   
   timeMin = 0;
   timeMax = 10000;
   
-  columnName = new String[6];
+  columnName = new String[9];
   columnName[0]="Channel 1";
   columnName[1]="Channel 2";
   columnName[2]="Channel 3";
   columnName[3]="Channel 4";
   columnName[4]="Channel 5";
   columnName[5]="Channel 6";
-  columnCount = 6;
+  columnName[6]="Measure";
+  columnName[7]="Square Wave";
+  columnName[8]="Sin Wave";
+  columnCount = 9;
   
   dataMin = 0;
   dataMax = 100;
@@ -237,7 +252,13 @@ void drawTitleTabs() {
     tabRight[col] = tabLeft[col] + tabPad + titleWidth + tabPad;
     
     // If the current tab, set its background white, otherwise use pale gray
-    fill(col == currentColumn ? 255 : 224);
+    if(col<6){
+      fill(col == currentColumn ? 255 : 224);
+    }
+    else{
+     if((col==6 && measure)||(col==7 && squareWave)||(col==8 && sinWave)) fill(on);
+     else fill(off); 
+    }
     rect(tabLeft[col], tabTop, tabRight[col], tabBottom);
     
     // If the current tab, use black for the text, otherwise use dark gray
@@ -252,7 +273,19 @@ void mousePressed() {
   if (mouseY > tabTop && mouseY < tabBottom) {
     for (int col = 0; col < columnCount; col++) {
       if (mouseX > tabLeft[col] && mouseX < tabRight[col]) {
-        setCurrent(col);
+        if(col < 6) setCurrent(col);
+        else{
+          measure=false;
+          squareWave=false;
+          sinWave=false;
+          
+          if(col==6) measure=true;
+          else if(col==7) squareWave=true;
+          else if(col==8) sinWave=true;
+          //start measurements
+          //send square wave and start measurements
+          //send sine wave and start measurements
+        }
       }
     }
   }
@@ -260,4 +293,12 @@ void mousePressed() {
 
 void setCurrent(int col) {
   currentColumn = col;
+}
+
+//example: ch0:123,ch1:123,ch2:123,ch3:123,ch4:123,ch5:123;
+void serialEvent(Serial arduino){
+  String listA[];
+  //TODO
+  data = arduino.readStringUntil(';');
+  listA=split(data, ',');
 }
