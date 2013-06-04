@@ -14,6 +14,17 @@ long readVcc() {
   return result;
 }
 
+double readADC(){
+    unsigned int ADCValue;
+    double voltage, vcc;
+
+    vcc = readVcc()/1000.0;
+    ADCValue = analogRead(ADC_IN);
+    voltage = (ADCValue / 1023.0) * vcc; 
+    
+    return voltage;
+}
+
 void measureAllChannels(){
   int i;
   
@@ -31,15 +42,16 @@ void measureAllChannels(){
   }
 }
 
-double readADC(){
-    unsigned int ADCValue;
-    double voltage, vcc;
-
-    vcc = readVcc()/1000.0;
-    ADCValue = analogRead(ADC_IN);
-    voltage = (ADCValue / 1023.0) * vcc; 
-    
-    return voltage;
+void measureChannelsForInterval(){
+  int i, time = millis();
+  
+  //minimum delay between All-channel reads is 20ms
+  for(i=0; i<TOTAL_MEASUREMENTS; i++){
+    measureAllChannels();
+    delay(230);
+  }
+  
+  return;
 }
 
 /*
@@ -78,7 +90,7 @@ int selectChannel(int select){
   digitalWrite(SELECT_C, lsb);
   
   //wait for MUX and traces to stabalize
-  delay(1);
+  delay(3);
   
   return 0;
 }
