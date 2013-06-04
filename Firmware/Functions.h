@@ -3,8 +3,9 @@
 
 //function declaration
 long readVcc();
-void measureAllChannels();
 double readADC();
+void measureAllChannels();
+void measureChannelsForInterval();
 int selectChannel(int);
 void waitForBlood();
 
