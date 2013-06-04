@@ -2,7 +2,7 @@
 #define FIRMWARE_H
 
 //Debug mode prints status messages to a computer via serial
-const int DEBUG=1, CHANNELS_IN_METER = 6, TOTAL_MEASUREMENTS = 100;
+const int DEBUG=0, CHANNELS_IN_METER = 6, TOTAL_MEASUREMENTS = 100, intervalINms=10000;
 
 //define analog pins
 const int ADC_OUT = 14, ADC_IN = 15;
@@ -22,5 +22,8 @@ struct channelStruct{
 
 static channelStruct Channel[CHANNELS_IN_METER];
 static int i;
+
+//Serial
+int dev, data_low, data_high, pec, con;
 
 #endif
